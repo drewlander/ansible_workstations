@@ -1,0 +1,13 @@
+---
+- name: all tasks
+  hosts: all
+  vars:
+    homeuser: user
+  tasks:
+    - include_tasks: arch_tasks.yml
+      when: ansible_distribution=="Archlinux"
+    - include_tasks: debian_tasks.yml
+      when: ansible_distribution=="Debian"
+    - include_tasks: arch_tasks.yml
+      when: ansible_distribution=="Fedora"
+

@@ -1,0 +1,74 @@
+- name: copy aliases dotfile to user
+  copy:
+    src: .aliases
+    dest: /home/{{ homeuser }}/.aliases
+    owner: "{{ homeuser }}"
+    group: "{{ homeuser }}"
+    mode: 0644
+- name: add .aliases to .bashrc
+  lineinfile:
+    path: /home/{{ homeuser }}/.bashrc
+    line: 'source ~/.aliases'
+- name: remove .emacs file
+  ansible.builtin.file:
+    path: /home/{{ homeuser }}/.emacs
+    state: absent
+- name: Create emacs.d directory
+  ansible.builtin.file:
+   path: /home/{{ homeuser }}/.emacs.d
+   state: directory
+   mode: '0755'
+   owner: "{{ homeuser }}"
+- name: copy init.el to .emacs.d directory
+  copy:
+    src: init.el
+    dest: /home/{{ homeuser }}/.emacs.d
+    owner: "{{ homeuser }}"
+    group: "{{ homeuser }}"
+    mode: 0644
+- name: install packages
+  package:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - audacious
+    - audacious-plugins
+    - mpv
+    - vlc
+    - neovim
+    - podman
+    - pandoc
+    - remmina
+    - pavucontrol
+    - httpie
+    - base-devel
+    - libdrm
+    - make
+    - dkms
+    - ripgrep
+    - clang
+    - zsh
+    - go
+    - gopls
+    - flatpak
+    - qemu
+    - qemu-arch-extra
+    - libvirt
+    - virt-manager
+    - dnsmasq
+    - nextcloud-client
+    - htop
+    - apparmor
+    - libreoffice-fresh
+- name: Enable libvirtd
+  ansible.builtin.systemd:
+    name: libvirtd.service
+    state: started
+    enabled: yes
+- name: Enable apparmor
+  ansible.builtin.systemd:
+    name: apparmor.service
+    state: started
+    enabled: yes
+
+

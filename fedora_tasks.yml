@@ -1,0 +1,140 @@
+- name: copy aliases dotfile to user
+  copy:
+    src: .aliases
+    dest: /home/{{ homeuser }}/.aliases
+    owner: "{{ homeuser }}"
+    group: "{{ homeuser }}"
+    mode: 0644
+- name: add .aliases to .bashrc
+  lineinfile:
+    path: /home/{{ homeuser }}/.bashrc
+    line: 'source ~/.aliases'
+- name: remove .emacs file
+  ansible.builtin.file:
+    path: /home/{{ homeuser }}/.emacs
+    state: absent
+- name: Create emacs.d directory
+  ansible.builtin.file:
+   path: /home/{{ homeuser }}/.emacs.d
+   state: directory
+   mode: '0755'
+   owner: "{{ homeuser }}"
+- name: copy init.el to .emacs.d directory
+  copy:
+    src: init.el
+    dest: /home/{{ homeuser }}/.emacs.d
+    owner: "{{ homeuser }}"
+    group: "{{ homeuser }}"
+    mode: 0644
+- name: Importing (free) key
+  ansible.builtin.rpm_key:
+   state: present
+   key: https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
+
+- name: Importing (non-free) key
+  ansible.builtin.rpm_key:
+   state: present
+   key: https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+- name: Enable the RPM Fusion repository
+  dnf:
+    name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ansible_distribution_major_version}}.noarch.rpm"
+    state: present
+  when: ansible_distribution == 'Fedora'
+- name: Enable the RPM Fusion nonfree repository
+  dnf:
+    name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ansible_distribution_major_version}}.noarch.rpm"
+    state: present
+  when: ansible_distribution == 'Fedora'
+
+- name: install packages
+  package:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - emacs
+    - audacious-plugins-exotic
+    - audacious-plugins-freeworld
+    - audacious
+    - mpv
+    - vlc
+    - neovim
+    - projectM-pulseaudio
+    - podman
+    - pandoc
+    - remmina-plugins-rdp
+    - remmina-plugins-spice
+    - pavucontrol
+    - httpie
+    - nextcloud-client-dolphin
+    - nextcloud-client
+    - gcc-c++
+    - libdrm-devel
+    - make
+    - dkms
+    - kernel-devel
+    - rpmdevtools
+    - ripgrep
+    - fd-find
+    - clang
+    - zsh
+    - golang
+    - golang-x-tools-gopls
+- name: add flathub repo
+  ansible.builtin.shell:
+    cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+- name: install flatpaks
+  flatpak:
+    name: "{{ flatpaks }}"
+  vars:
+    flatpaks:
+    - org.chromium.Chromium
+    - io.gitlab.librewolf-community
+    - org.freedesktop.Platform.ffmpeg-full/x86_64/19.08 
+    - org.freedesktop.Platform.ffmpeg-full/x86_64/20.08
+    - net.sourceforge.projectM
+    - com.github.tchx84.Flatseal
+    - org.signal.Signal
+    - com.discordapp.Discord
+    - im.riot.Riot
+- name: install yum groups
+  yum:
+    name: "{{ yum_groups }}"
+  vars:
+    yum_groups:
+    - "@development-tools"
+    - "@virtualization"
+
+- name: Enable libvirtd
+  ansible.builtin.systemd:
+    name: libvirtd.service
+    state: started
+    enabled: yes
+# taken from https://waylonwalker.com/install-rust/
+- name: check if cargo is installed
+  shell: command -v cargo
+  register: cargo_exists
+  ignore_errors: yes
+- name: Download Installer
+  when: cargo_exists is failed
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/sh.rustup.rs
+    mode: '0755'
+    force: 'yes'
+  tags:
+    - rust
+- name: install rust/cargo
+  when: cargo_exists is failed
+  shell: /tmp/sh.rustup.rs -y
+  tags:
+    - rust
+- name: add cargo sourcing to .zshrc
+  lineinfile:
+    path: /home/{{ homeuser }}/.zshrc
+    line: '[ -f ~/.cargo/env ] && source $HOME/.cargo/env'
+- name: add cargo sourcing to .bashrc
+  lineinfile:
+    path: /home/{{ homeuser }}/.bashrc
+    line: '[ -f ~/.cargo/env ] && source $HOME/.cargo/env'
+ 
+

@@ -1,0 +1,35 @@
+(require 'package)
+(package-initialize)
+(setq package-enable-at-startup nil)
+(setq package-archives '(("org"   . "http://orgmode.org/elpa/")
+                         ("gnu"   . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+
+
+
+;; Bootstrap `use-package`
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(setq projectile-keymap-prefix (kbd "C-c p"))
+(global-set-key (kbd "C-x w") 'elfeed)
+(require 'use-package)
+(use-package markdown-mode :ensure t)
+(use-package markdown-preview-mode :ensure t)
+(use-package markdown-preview-eww :ensure t)
+(use-package doom-themes :ensure t)
+(use-package rust-mode :ensure t)
+(use-package rustic :ensure t)
+(use-package lsp-mode :ensure t)
+(use-package company :ensure t)
+(use-package yasnippet :ensure t)
+(use-package flycheck :ensure t)
+(use-package go-mode :ensure t)
+(use-package elpy :ensure t)
+(use-package company-jedi :ensure t)
+(use-package poetry :ensure t)
+
+
+(tool-bar-mode   -1)
+(scroll-bar-mode -1)
+(load-theme 'doom-one t)
