@@ -60,6 +60,7 @@
     - htop
     - apparmor
     - libreoffice-fresh
+    - linux-hardened
 - name: Enable libvirtd
   ansible.builtin.systemd:
     name: libvirtd.service
@@ -70,5 +71,43 @@
     name: apparmor.service
     state: started
     enabled: yes
+- name: Enable fstrim.timer
+  ansible.builtin.systemd:
+    name: fstrim.timer
+    state: started
+    enabled: yes
+- name: copy custom sysctls
+  copy:
+    src: 99-default.conf
+    dest: /etc/sysctl.d/99-default.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: copy custom blacklist modules
+  copy:
+    src: blacklist-items.conf
+    dest: /etc/modprobe.d/blacklist-items.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: boot linux-hardened first
+  lineinfile:
+    path: /etc/default/grub
+    line: 'GRUB_TOP_LEVEL="/boot/vmlinuz-linux-hardened"'
+    state: present
+    backup: yes
+  register: grub_top_level
+- name: set kernel cmd line parameters
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+    line: "GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES rd.luks.uuid=4723a60e-c46b-4a01-8046-b0bfd90233f3 loglevel=3 lsm=landlock,lockdown,yama,integrity,apparmor,bpf slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 vsyscall=none'"
+    state: present
+    backup: yes
+  register: grub_cmdline
+
+- name: run grub-mkconfig
+  command: grub-mkconfig -o /boot/grub/grub.cfg
+  when: (grub_top_level.changed) or (grub_cmdline.changed)
 
 
