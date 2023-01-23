@@ -65,54 +65,24 @@
     - apt-listbugs
     - apt-listchanges
     - htop
+    - chromium
+    - webext-ublock-origin-chromium
     - apparmor-profiles-extra 
 - name: add flathub repo
   ansible.builtin.shell:
     cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-- name: install flatpaks
-  flatpak:
-    name: "{{ flatpaks }}"
-  vars:
-    flatpaks:
-    - org.chromium.Chromium
-    - io.gitlab.librewolf-community
-    - org.freedesktop.Platform.ffmpeg-full/x86_64/20.08
-    - net.sourceforge.projectM
-    - com.github.tchx84.Flatseal
-    - org.signal.Signal
-    - com.discordapp.Discord
-    - im.riot.Riot
-- name: Enable libvirtd
-  ansible.builtin.systemd:
-    name: libvirtd.service
-    state: started
-    enabled: yes
-# taken from https://waylonwalker.com/install-rust/
-- name: check if cargo is installed
-  shell: command -v cargo
-  register: cargo_exists
-  ignore_errors: yes
-- name: Download Installer
-  when: cargo_exists is failed
-  get_url:
-    url: https://sh.rustup.rs
-    dest: /tmp/sh.rustup.rs
-    mode: '0755'
-    force: 'yes'
-  tags:
-    - rust
-- name: install rust/cargo
-  when: cargo_exists is failed
-  shell: /tmp/sh.rustup.rs -y
-  tags:
-    - rust
-- name: add cargo sourcing to .zshrc
-  lineinfile:
-    path: /home/{{ homeuser }}/.zshrc
-    line: '[ -f ~/.cargo/env ] && source $HOME/.cargo/env'
-- name: add cargo sourcing to .bashrc
-  lineinfile:
-    path: /home/{{ homeuser }}/.bashrc
-    line: '[ -f ~/.cargo/env ] && source $HOME/.cargo/env'
- 
+- name: copy custom sysctls
+  copy:
+    src: 99-default.conf
+    dest: /etc/sysctl.d/99-default.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: copy custom blacklist modules
+  copy:
+    src: blacklist-items.conf
+    dest: /etc/modprobe.d/blacklist-items.conf
+    owner: root
+    group: root
+    mode: 0644
 
