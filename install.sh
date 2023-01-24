@@ -5,7 +5,9 @@ if [ -f /etc/os-release ]; then
 fi
 echo $OS
 if [[ $OS =~ "Fedora" ]]; then
-  echo "fedora!"
+  echo "fedora detected"
+  mkdir -p ~/source/virtual_envs
+  python3 -m venv ~/source/virtual_envs/ansible
 elif [[ $OS =~ "Debian" ]]; then
   echo "debian detected"
   sudo apt install python3-venv sshpass openssh-server -y
