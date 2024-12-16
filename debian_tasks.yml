@@ -31,8 +31,8 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - debsecan
-    - emacs
+    - firewalld
+    - strawberry
     - audacious
     - audacious-plugins
     - mpv
@@ -43,14 +43,10 @@
     - remmina-plugin-rdp
     - remmina
     - pavucontrol
-    - httpie
-    - nextcloud-desktop
     - build-essential
-    - libdrm-dev
+    - qt5-qtsvg
     - make
-    - dkms
     - ripgrep
-    - clang
     - zsh
     - golang
     - gopls
@@ -58,9 +54,9 @@
     - qemu-system-x86
     - libvirt-daemon-system
     - libvirt-clients
+    - qemu-system-modules-spice
     - virt-manager
     - gir1.2-spiceclientgtk-3.0
-    - dnsmasq
     - qemu-utils  
     - apt-listbugs
     - apt-listchanges
@@ -68,21 +64,36 @@
     - chromium
     - webext-ublock-origin-chromium
     - apparmor-profiles-extra 
+    - libspa-0.2-bluetooth
+    - emacs-pgtk
+    - git
 - name: add flathub repo
   ansible.builtin.shell:
     cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-- name: copy custom sysctls
-  copy:
-    src: 99-default.conf
-    dest: /etc/sysctl.d/99-default.conf
-    owner: root
-    group: root
-    mode: 0644
-- name: copy custom blacklist modules
-  copy:
-    src: blacklist-items.conf
-    dest: /etc/modprobe.d/blacklist-items.conf
-    owner: root
-    group: root
-    mode: 0644
+- name: install flatpaks
+  community.general.flatpak:
+    name:
+      - org.signal.Signal
+      - com.discordapp.Discord
+      - im.riot.Riot
+      - org.telegram.desktop
 
+#- name: copy custom sysctls
+#  copy:
+#    src: 99-default.conf
+#    dest: /etc/sysctl.d/99-default.conf
+#    owner: root
+#    group: root
+#    mode: 0644
+#- name: copy custom blacklist modules
+#  copy:
+#    src: blacklist-items.conf
+#    dest: /etc/modprobe.d/blacklist-items.conf
+#    owner: root
+#    group: root
+#    mode: 0644
+- name: Start firewalld service, if not started
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes

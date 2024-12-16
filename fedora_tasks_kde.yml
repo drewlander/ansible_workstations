@@ -45,27 +45,12 @@
     name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ansible_distribution_major_version}}.noarch.rpm"
     state: present
   when: ansible_distribution == 'Fedora'
-- name: add mullvad browser repo
-  get_url:
-    url: https://repository.mullvad.net/rpm/stable/mullvad.repo
-    dest: /etc/yum.repos.d/mullvad_repo.repo
 
-- name: Enable project hardened-chromium
-  community.general.copr:
-    name:  secureblue/hardened-chromium 
-    state: enabled
-- name: Update package cache
-  ansible.builtin.package:
-    update_cache: true
 - name: install packages
   package:
     name: "{{ packages }}"
   vars:
     packages:
-    - hardened-chromium
-    - distrobox
-    - mullvad-browser
-    - btop
     - emacs
     - audacious-plugins-exotic
     - audacious-plugins-freeworld
@@ -74,8 +59,6 @@
     - vlc
     - neovim
     - projectM-pulseaudio
-    - evolution
-    - evolution-ews
     - podman
     - pandoc
     - remmina-plugins-rdp
@@ -83,7 +66,6 @@
     - pavucontrol
     - httpie
     - gcc-c++
-    - libreoffice
     - libdrm-devel
     - make
     - dkms
@@ -96,21 +78,8 @@
     - golang
     - golang-x-tools-gopls
     - gstreamer1-vaapi
+    - yakuake
     - xiphos
-    - hipcc 
-    - hipblas-devel 
-    - rocblas-devel 
-    - hipblaslt-devel 
-    - rocm-comgr-devel 
-    - rocm-smi 
-    - miopen
-    - gnome-tweaks
-    - gnome-shell-extension-appindicator
-    - gnome-extensions-app
-    - gnome-shell-extension-caffeine
-    - gnome-shell-extension-dash-to-dock
-    - gnome-shell-extension-user-theme
-    - gnome-shell-extension-openweather
 - name: add flathub repo
   ansible.builtin.shell:
     cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -121,16 +90,12 @@
       - com.discordapp.Discord
       - im.riot.Riot
       - org.telegram.desktop
+      - net.mullvad.MullvadBrowser
       - org.libreoffice.LibreOffice
       - com.github.tchx84.Flatseal
       - com.mattjakeman.ExtensionManager
       - com.usebottles.bottles
       - net.lutris.Lutris
-      - com.github.tchx84.Flatseal
-      - net.lutris.Lutris
-      - com.usebottles.bottles
-      - org.kde.amarok
-      - io.github.dvlv.boxbuddyrs
 - name: install yum groups
   yum:
     name: "{{ yum_groups }}"
@@ -144,9 +109,4 @@
     name: libvirtd.service
     state: started
     enabled: yes
-- name: adding existing user '{{ user }}' to group sudo
-  user:
-    name: 'user'
-    groups: kvm,libvirt
-    append: yes
 

@@ -1,2 +1,4 @@
-alias vi="nvim"
+#alias vi="toolbox run -c clistuff nvim"
+#alias vim="toolbox run -c clistuff nvim"
 alias vim="nvim"
+alias vi="nvim"

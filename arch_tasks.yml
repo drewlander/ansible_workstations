@@ -51,19 +51,37 @@
     - go
     - gopls
     - flatpak
-    - qemu
-    - qemu-arch-extra
+    - base-devel
+    - qemu-full
     - libvirt
     - virt-manager
     - dnsmasq
-    - nextcloud-client
+    - bridge-utils
     - htop
     - apparmor
     - libreoffice-fresh
-    - linux-hardened
+    - xiphos
+    - emacs-wayland
+    - distrobox
+- name: add flathub repo
+  ansible.builtin.shell:
+    cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+- name: install flatpaks
+  community.general.flatpak:
+    name:
+      - org.signal.Signal
+      - com.discordapp.Discord
+      - im.riot.Riot
+      - org.telegram.desktop
+      - net.mullvad.MullvadBrowser
 - name: Enable libvirtd
   ansible.builtin.systemd:
     name: libvirtd.service
+    state: started
+    enabled: yes
+- name: Enable bluetooth
+  ansible.builtin.systemd:
+    name: bluetooth.service
     state: started
     enabled: yes
 - name: Enable apparmor
@@ -76,30 +94,30 @@
     name: fstrim.timer
     state: started
     enabled: yes
-- name: copy custom sysctls
-  copy:
-    src: 99-default.conf
-    dest: /etc/sysctl.d/99-default.conf
-    owner: root
-    group: root
-    mode: 0644
-- name: copy custom blacklist modules
-  copy:
-    src: blacklist-items.conf
-    dest: /etc/modprobe.d/blacklist-items.conf
-    owner: root
-    group: root
-    mode: 0644
-- name: boot linux-hardened first
-  lineinfile:
-    path: /etc/default/grub
-    line: 'GRUB_TOP_LEVEL="/boot/vmlinuz-linux-hardened"'
-    state: present
-    backup: yes
-  register: grub_top_level
-
-- name: run grub-mkconfig
-  command: grub-mkconfig -o /boot/grub/grub.cfg
-  when: grub_top_level.changed
-
-
+#- name: copy custom sysctls
+#  copy:
+#    src: 99-default.conf
+#    dest: /etc/sysctl.d/99-default.conf
+#    owner: root
+#    group: root
+#    mode: 0644
+#- name: copy custom blacklist modules
+#  copy:
+#    src: blacklist-items.conf
+#    dest: /etc/modprobe.d/blacklist-items.conf
+#    owner: root
+#    group: root
+#    mode: 0644
+#- name: boot linux-hardened first
+#  lineinfile:
+#    path: /etc/default/grub
+#    line: 'GRUB_TOP_LEVEL="/boot/vmlinuz-linux-hardened"'
+#    state: present
+#    backup: yes
+#  register: grub_top_level
+#
+#- name: run grub-mkconfig
+#  command: grub-mkconfig -o /boot/grub/grub.cfg
+#  when: grub_top_level.changed
+#
+#
