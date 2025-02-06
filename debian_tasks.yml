@@ -44,7 +44,6 @@
     - remmina
     - pavucontrol
     - build-essential
-    - qt5-qtsvg
     - make
     - ripgrep
     - zsh
