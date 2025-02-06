@@ -24,11 +24,25 @@ elif [[ $OS =~ "Arch Linux" ]]; then
   sudo pacman -Sy sshpass
   mkdir -p ~/source/virtual_envs
   python3 -m venv ~/source/virtual_envs/ansible
+elif [[ $OS =~ "FreeBSD" ]]; then
+  echo "FreeBSD detected"
+  mkdir -p ~/source/virtual_envs
+  #python3.11 -m venv ~/source/virtual_envs/ansible
+   doas pkg install -y py311-ansible sshpass
 fi
-sudo systemctl start sshd
-source ~/source/virtual_envs/ansible/bin/activate
-pip install ansible
+
+
+if [[ $OS =~ "FreeBSD" ]]; then
+	doas service sshd start
+	ANSIBLE_PYTHON_INTERPRETER=/usr/local/bin/python3.11 ANSIBLE_BECOME_METHOD=doas ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory tasks.yml --ask-become-pass -b -k
+else
+
+    sudo systemctl start sshd
+    source ~/source/virtual_envs/ansible/bin/activate
+    pip install ansible
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory tasks.yml --ask-become-pass -b -k 
-sudo systemctl stop sshd
+fi
+
+
 deactivate
 
