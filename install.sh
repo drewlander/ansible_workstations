@@ -41,8 +41,8 @@ else
     source ~/source/virtual_envs/ansible/bin/activate
     pip install ansible
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory tasks.yml --ask-become-pass -b -k 
+deactivate
 fi
 
 
-deactivate
 

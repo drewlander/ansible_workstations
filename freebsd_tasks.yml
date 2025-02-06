@@ -26,6 +26,14 @@
     owner: "{{ homeuser }}"
     group: "{{ homeuser }}"
     mode: 0644
+- name: copy sysctl.conf 
+  copy:
+    src: freebsd_sysctl.conf
+    dest: /etc/sysctl.conf
+    owner: "root"
+    group: "wheel"
+    mode: 0644
+
 - name: install packages
   community.general.pkgng:
     name: "{{ packages }}"
@@ -33,4 +41,34 @@
     packages:
     - emacs
     - libreoffice
+    - fish
+    - xorg
+    - wayland
+    - seatd
+    - dbus
+    - wayfire
+    - wf-shell
+    - alacritty
+    - swaylock-effects
+    - swayidle
+    - wlogout
+    - kanshi
+    - mako
+    - wlsunset
+    - wayfire-plugins-extra
+    - linux-brave
+    - chromium
+    - firefox
+    - hplip
+    - remmina
+    - vm-bhyve-devel
+    - bhyve-firmware
+    - edk2-bhyve
+    - dnsmasq
+    - grub2-bhyve
+    - tigervnc-viewer
+    - rdesktop
+    - remmina
+    - fusefs-exfat
+    - fusefs-ntfs
     state: latest
