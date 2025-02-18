@@ -51,6 +51,7 @@
     name: "{{ packages }}"
   vars:
     packages:
+    - chromium
     - emacs
     - audacious-plugins-exotic
     - audacious-plugins-freeworld
@@ -88,7 +89,6 @@
     - gnome-shell-extension-caffeine
     - gnome-shell-extension-dash-to-dock
     - gnome-shell-extension-user-theme
-    - gnome-shell-extension-openweather
     - google-chrome-beta
     - libreoffice
 - name: add flathub repo
@@ -118,4 +118,8 @@
     name: libvirtd.service
     state: started
     enabled: yes
-
+- name: adding existing user '{{ user }}' to group sudo
+  user:
+    name: 'user'
+    groups: kvm,libvirt
+    append: yes
