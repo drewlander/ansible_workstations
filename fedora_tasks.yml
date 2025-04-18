@@ -31,6 +31,11 @@
    state: present
    key: https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
 
+- name: Import mullvad key
+  ansible.builtin.rpm_key:
+   state: present
+   key: https://repository.mullvad.net/rpm/mullvad-keyring.asc
+
 - name: Importing (non-free) key
   ansible.builtin.rpm_key:
    state: present
@@ -46,11 +51,21 @@
     state: present
   when: ansible_distribution == 'Fedora'
 
+- name: Add multiple repositories into the same file (1/2)
+  ansible.builtin.yum_repository:
+    name: mullvad-browser
+    description: mullvad browser repo
+    file: external_repos
+    baseurl: https://repository.mullvad.net/rpm/stable/$basearch
+    gpgcheck: yes
+
 - name: install packages
   package:
     name: "{{ packages }}"
   vars:
     packages:
+    - weechat
+    - mullvad-browser
     - chromium
     - emacs
     - audacious-plugins-exotic
@@ -71,7 +86,6 @@
     - gcc-c++
     - libdrm-devel
     - make
-    - dkms
     - kernel-devel
     - rpmdevtools
     - ripgrep
@@ -87,10 +101,14 @@
     - gnome-shell-extension-appindicator
     - gnome-extensions-app
     - gnome-shell-extension-caffeine
+    - gnome-shell-extension-appindicator
     - gnome-shell-extension-dash-to-dock
     - gnome-shell-extension-user-theme
-    - google-chrome-beta
     - libreoffice
+    - fish
+    - deskflow
+    - zsh
+    - thunderbird
 - name: add flathub repo
   ansible.builtin.shell:
     cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
